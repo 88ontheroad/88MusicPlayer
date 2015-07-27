@@ -1,0 +1,60 @@
+package com.ken.musicplayer.dao;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.ken.musicplayer.model.Music;
+
+import android.app.Activity;
+import android.app.ListActivity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.provider.MediaStore;
+
+public class SelectedMusicList {
+
+	public static List<Music> getMusicData(Context context, String selectedName){
+		List<Music> lm =new ArrayList<Music>();
+		ContentResolver cr=context.getContentResolver();
+		if(cr!=null){
+			//获取所有歌曲
+			
+			//query方法获取音频文件， cursor指针指在第一个数据
+	    	Cursor cursor=cr.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+	    			null, MediaStore.Audio.Media.ARTIST + "='" + selectedName+"'", null, null);	//筛选的格式ARTIST = '韩磊'  
+	    																						//所以要将单引号传进去，用双引号引
+	    	if(null==cursor){
+	    		return null;
+	    	}
+	    	if(cursor.moveToFirst()){
+	    		do{
+	    			Music m=new Music();
+	    	     String title=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
+	    	     String singer=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+	    	     if("<unknown>".equals(singer)){
+						singer="未知艺术家";
+					}
+	    	     String album=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+	    	     long size=cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE));
+	    	     long time=cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
+	    	     String url=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+	    	     String name=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+	    	     m.setTitle(title);
+	    	     m.setSinger(singer);
+	    	     m.setAlbum(album);
+	    	     m.setSize(size);
+	    	     m.setTime(time);
+	    	     m.setUrl(url);
+	    	     m.setName(name);
+	    	     lm.add(m);
+	    		}while(cursor.moveToNext());	
+	    	}	
+    	}
+		return lm;
+		
+	}
+}
+
+
